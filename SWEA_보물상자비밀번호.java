@@ -67,6 +67,10 @@ public class SWEA_보물상자비밀번호 {
 					result=s;
 				count++;
 			}
+//			for(String res:tree) {
+//				System.out.println(res);
+//			}
+			// 트리에서 하나씩 꺼내서 출력하는 방법
 			int lastRe=Integer.parseInt(result,16);
 			sb.append("#").append(tc).append(" ").append(lastRe).append("\n");
 		}
