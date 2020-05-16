@@ -14,6 +14,7 @@ public class SWEA_무선충전 {
 	static int[][] arr;
 	static int[] dh = { 0, -1, 0, 1, 0 };// 이동x, 상, 우, 하,좌
 	static int[] dy = { 0, 0, 1, 0, -1 };
+	static int sum;
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -22,6 +23,8 @@ public class SWEA_무선충전 {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			M = Integer.parseInt(st.nextToken()); // 이동 시간
 			A = Integer.parseInt(st.nextToken()); // 배터리 갯수
+
+			sum = 0;
 
 			arr = new int[10 + 1][10 + 1];
 			moveA = new int[M];
@@ -38,8 +41,8 @@ public class SWEA_무선충전 {
 			list = new ArrayList<>();
 			for (int i = 0; i < A; i++) {
 				st = new StringTokenizer(br.readLine());
-				int h = Integer.parseInt(st.nextToken());
 				int y = Integer.parseInt(st.nextToken());
+				int h = Integer.parseInt(st.nextToken());
 				int c = Integer.parseInt(st.nextToken());
 				int p = Integer.parseInt(st.nextToken());
 				list.add(new Battery(h, y, c, p, i + 1));
@@ -51,9 +54,8 @@ public class SWEA_무선충전 {
 					peopleA = new Data(peopleA.h + dh[moveA[i - 1]], peopleA.y + dy[moveA[i - 1]]);
 					peopleB = new Data(peopleB.h + dh[moveB[i - 1]], peopleB.y + dy[moveB[i - 1]]);
 				}
-				System.out.println(peopleB.h + "," + peopleB.y);
-				ArrayList<Integer> listA = new ArrayList<>();
-				ArrayList<Integer> listB = new ArrayList<>();
+				ArrayList<Battery> listA = new ArrayList<>();
+				ArrayList<Battery> listB = new ArrayList<>();
 				for (int j = 0; j < list.size(); j++) {
 					// A이동 좌표
 					int ah = peopleA.h;
@@ -61,55 +63,55 @@ public class SWEA_무선충전 {
 					// B이동 좌표
 					int bh = peopleB.h;
 					int by = peopleB.y;
+					if ((Math.abs(ah - list.get(j).h) + Math.abs(ay - list.get(j).y)) <= list.get(j).c) {
+						listA.add(list.get(j));
+					}
+					if ((Math.abs(bh - list.get(j).h) + Math.abs(by - list.get(j).y)) <= list.get(j).c) {
+						listB.add(list.get(j));
+					}
 
-					boolean[][] visit = new boolean[10 + 1][10 + 1];
-					Queue<Data> q = new LinkedList<>();
-					int h = list.get(j).h;
-					int y = list.get(j).y;
-					int limit = list.get(j).c;
-					int type = list.get(j).type;
-					visit[h][y] = true;
-					q.add(new Data(h, y, type, 0));
-					while (!q.isEmpty()) {
-						Data tmp = q.poll();
-						if (tmp.cnt == limit) {
-							continue;
-						}
-						for (int k = 1; k < 5; k++) {
-							int temph = tmp.h + dh[k];
-							int tempy = tmp.y + dy[k];
-							if (temph <= 0 || temph >= arr.length || tempy <= 0 || tempy >= arr[0].length
-									|| visit[temph][tempy])
-								continue;
-							if (temph == ah && tempy == ay) {
-								listA.add(tmp.type);
-							} else if (temph == bh && tempy == by) {
-								listB.add(tmp.type);
-							}
-							visit[temph][tempy] = true;
-							q.add(new Data(temph, tempy, tmp.type, tmp.cnt + 1));
-
-						}
-					} // end of bfs 충전 범위 체크
 				}
-
+				int tempSum = 0;
+				int max = Integer.MIN_VALUE;
+				if (listA.size() >= 1 && listB.size() == 0) {
+					for (int m = 0; m < listA.size(); m++) {
+						max = Math.max(max, listA.get(m).p);
+					}
+					sum += max;
+				} else if (listA.size() == 0 && listB.size() >= 1) {
+					for (int m = 0; m < listB.size(); m++) {
+						max = Math.max(max, listB.get(m).p);
+					}
+					sum += max;
+				} else if (listA.size() == 1 && listB.size() == 1) {
+					if(listA.get(0).type==listB.get(0).type) {
+						tempSum=listA.get(0).p;
+					}else {
+						tempSum = listA.get(0).p + listB.get(0).p;						
+					}
+					sum += tempSum;
+					
+				} else if (listA.size() > 1 || listB.size() > 1) {
+					for (int m = 0; m < listA.size(); m++) {
+						for (int n = 0; n < listB.size(); n++) {
+							if (listA.get(m).type == listB.get(n).type) {
+								tempSum = listA.get(m).p;
+							} else {
+								tempSum = listA.get(m).p + listB.get(n).p;
+							}
+							max = Math.max(max, tempSum);
+						}
+					}
+					sum += max;
+				}
 			}
+			System.out.println("#"+tc+" "+sum);
 		}
 	}
 
 	static class Data {
 		int h;
 		int y;
-		int type;
-		int cnt;
-
-		public Data(int h, int y, int type, int cnt) {
-			super();
-			this.h = h;
-			this.y = y;
-			this.type = type;
-			this.cnt = cnt;
-		}
 
 		public Data(int h, int y) {
 			super();
